@@ -1,6 +1,10 @@
 module.exports = {
-  mongoURI:
-    'mongodb+srv://ucheAdmin:uchepassword@decaconnector-isc1h.mongodb.net/deca-connector?retryWrites=true&w=majority',
+  mongoURI: 'mongodb://localhost:27017/decaconnector',
+  key: 'secret',
 };
-// FOR COMPASS CONNECTION
-// mongodb+srv://ucheAdmin:uchepassword@decaconnector-isc1h.mongodb.net/deca-connector
+
+// 'mongodb+srv://ucheAdmin:uchepassword@decaconnector-isc1h.mongodb.net/deca-connector?retryWrites=true&w=majority',
+// Online
+
+// Compass
+// 'mongodb+srv://ucheAdmin:uchepassword@decaconnector-isc1h.mongodb.net/deca-connector',
