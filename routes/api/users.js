@@ -6,6 +6,11 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const { key } = require('../../config/keys');
+
+// Load Input Validation
+const validateRegisterInput = require('../../validation/register');
+const validateLoginInput = require('../../validation/login');
+
 // Load User model
 const User = require('../../models/User');
 
@@ -22,10 +27,18 @@ router.get('/test', (req, res) => res.json({ message: 'Users Works' }));
  * @access  Pubic
  */
 router.post('/register', (req, res) => {
-  User.findOne({ email: req.body.email }).then((user) => {
+  const { errors, isValid } = validateRegisterInput(req.body);
+
+  // Check Validation
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  return User.findOne({ email: req.body.email }).then((user) => {
     try {
       if (user) {
-        return res.status(400).json({ email: 'Email already exists.' });
+        errors.email = 'Email already exists.';
+        return res.status(400).json(errors);
       }
       const { name, email, password } = req.body;
       const avatar = gravatar.url(email, {
@@ -59,15 +72,19 @@ router.post('/register', (req, res) => {
  * @access  Pubic
  */
 router.post('/login', (req, res) => {
-  const { email, password } = req.body;
+  const { errors, isValid } = validateLoginInput(req.body);
+  // Check Validation
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
 
+  const { email, password } = req.body;
   // Find user by email
-  User.findOne({ email }).then((user) => {
+  return User.findOne({ email }).then((user) => {
     //  Check for user
     if (!user) {
-      return res.status(404).json({
-        email: 'User not found',
-      });
+      errors.email = ' User not found';
+      return res.status(404).json(errors);
     }
     //  Check password
     return bcrypt.compare(password, user.password).then((isMatch) => {
@@ -93,7 +110,8 @@ router.post('/login', (req, res) => {
           },
         );
       } else {
-        res.status(400).json({ password: 'Password does not match' });
+        errors.password = 'Password is incorrect';
+        res.status(400).json(errors);
       }
     });
   });
@@ -109,7 +127,10 @@ router.get('/current', passport.authenticate('jwt', { session: false }), (req, r
     id, name, email, avatar,
   } = req.user;
   res.json({
-    id, name, email, avatar,
+    id,
+    name,
+    email,
+    avatar,
   });
 });
 module.exports = router;
