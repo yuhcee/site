@@ -22,7 +22,7 @@ const User = require('../../models/User');
 router.get('/test', (req, res) => res.json({ message: 'Users Works' }));
 
 /**
- * @route   GET api/users/register
+ * @route   POST api/users/register
  * @desc    Register user
  * @access  Pubic
  */
@@ -34,7 +34,7 @@ router.post('/register', (req, res) => {
     return res.status(400).json(errors);
   }
 
-  return User.findOne({ email: req.body.email }).then((user) => {
+  User.findOne({ email: req.body.email }).then(user => {
     try {
       if (user) {
         errors.email = 'Email already exists.';
@@ -44,30 +44,30 @@ router.post('/register', (req, res) => {
       const avatar = gravatar.url(email, {
         s: '200', // size
         r: 'pg', // rating
-        d: 'mm', // default
+        d: 'mm' // default
       });
       const newUser = new User({
         name,
         email,
         avatar,
-        password,
+        password
       });
 
-      return bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.genSalt(10, (err, salt) => {
         bcrypt.hash(newUser.password, salt, (error, hash) => {
           if (err) throw err;
           newUser.password = hash;
-          newUser.save().then(createdUser => res.status(200).json(createdUser));
+          newUser.save().then(createdUser => res.json(createdUser));
         });
       });
     } catch (error) {
-      throw new Error({ error });
+      console.log(error);
     }
   });
 });
 
 /**
- * @route   GET api/users/login
+ * @route   POST api/users/login
  * @desc    Login user / Returning JWT token
  * @access  Pubic
  */
@@ -80,14 +80,14 @@ router.post('/login', (req, res) => {
 
   const { email, password } = req.body;
   // Find user by email
-  return User.findOne({ email }).then((user) => {
+  return User.findOne({ email }).then(user => {
     //  Check for user
     if (!user) {
       errors.email = ' User not found';
       return res.status(404).json(errors);
     }
     //  Check password
-    return bcrypt.compare(password, user.password).then((isMatch) => {
+    return bcrypt.compare(password, user.password).then(isMatch => {
       if (isMatch) {
         // User matched
         const { id, name, avatar } = user;
@@ -100,14 +100,14 @@ router.post('/login', (req, res) => {
           key,
 
           {
-            expiresIn: '1h',
+            expiresIn: '1h'
           },
           (err, token) => {
             res.json({
               success: true,
-              token: `Bearer ${token}`,
+              token: `Bearer ${token}`
             });
-          },
+          }
         );
       } else {
         errors.password = 'Password is incorrect';
@@ -122,15 +122,17 @@ router.post('/login', (req, res) => {
  * @desc    Returns current user
  * @access  Private
  */
-router.get('/current', passport.authenticate('jwt', { session: false }), (req, res) => {
-  const {
-    id, name, email, avatar,
-  } = req.user;
-  res.json({
-    id,
-    name,
-    email,
-    avatar,
-  });
-});
+router.get(
+  '/current',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    const { id, name, email, avatar } = req.user;
+    res.json({
+      id,
+      name,
+      email,
+      avatar
+    });
+  }
+);
 module.exports = router;
