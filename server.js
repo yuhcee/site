@@ -20,11 +20,14 @@ const db = require('./config/keys').mongoURI;
 
 // Connect to MongoDB
 mongoose
-  .connect(db, { useNewUrlParser: true })
+  .connect(db, {
+    useCreateIndex: true,
+    useNewUrlParser: true,
+    useFindAndModify: false,
+    useUnifiedTopology: true
+  })
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
-mongoose.set('useFindAndModify', false);
-mongoose.set('useCreateIndex', true);
 // Passport middleware
 app.use(passport.initialize());
 
