@@ -16,4 +16,21 @@ export const registerUser = (userData, history) => dispatch => {
     );
 };
 
-
+export const loginUser = userData => dispatch => {
+  axios
+    .post("/api/users/login", userData)
+    .then(res => {
+      // Save to localStorage
+      const { token } = res.data;
+      // Set token to localSorage
+      localStorage.setItem("jwtToken", token);
+      // set token to Auth Header
+      setAuthToken(token);
+    })
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+      })
+    );
+};
