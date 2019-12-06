@@ -49,10 +49,13 @@ export const setCurrentUser = decoded => {
 };
 
 // Log out user
-export const logOutUser = () => dispatch => {
+export const logoutUser = () => dispatch => {
   // Remove token from localStorage
-  localStorage.removeItem('jwt');
+  localStorage.removeItem('jwtToken');
   // Remove auth header for future requests
   setAuthToken(false);
+  // Set current user to {} which will set isAuthenticated to false
   dispatch(setCurrentUser({}));
+  // Redirect to login
+  window.location.href = '/login';
 };
