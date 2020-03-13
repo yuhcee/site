@@ -17,7 +17,7 @@ class Navbar extends Component {
       <ul className='navbar-nav ml-auto'>
         <li className='nav-item'>
           <a
-            href='javascript:void(0);'
+            href='true'
             onClick={this.onLogoutClick.bind(this)}
             className='nav-link'
           >
